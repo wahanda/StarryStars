@@ -56,6 +56,7 @@ public class RatingView: UIView {
     public weak var delegate: RatingViewDelegate?
     
     var stars = [UIImageView]()
+    var ratingCandidate: Float = 0.0
     
     
     override init(frame: CGRect) {
@@ -144,8 +145,9 @@ public class RatingView: UIView {
             
             let x = touchLocation.x;
             
-            if x >= imageView.center.x {
-                rating = Float(i) + 1
+            if x >= CGRectGetMinX(imageView.frame) {
+                let newRating = Float(i) + 1
+                rating = newRating == ratingCandidate ? 0 : newRating
                 return
             } else if x >= CGRectGetMinX(imageView.frame) && halfStarsAllowed {
                 rating = Float(i) + 0.5
@@ -196,17 +198,14 @@ public class RatingView: UIView {
 extension RatingView {
     override public func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         guard editable else { return }
-        handleTouches(touches)
-    }
-    
-    override public func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        guard editable else { return }
+        ratingCandidate = rating
         handleTouches(touches)
     }
     
     override public func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         guard editable else { return }
         handleTouches(touches)
+        ratingCandidate = 0.0
         guard let delegate = delegate else { return }
         delegate.ratingView(self, didChangeRating: rating)
     }
