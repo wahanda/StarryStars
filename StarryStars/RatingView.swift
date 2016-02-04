@@ -13,16 +13,16 @@ import UIKit
      
      - parameter ratingView: Rating view, which calls this method
      - parameter didChangeRating newRating: New rating
-    */
+     */
     func ratingView(ratingView: RatingView, didChangeRating newRating: Float)
 }
 
 /**
  Rating bar, fully customisable from Interface builder
-*/
+ */
 @IBDesignable
 public class RatingView: UIView {
-   
+    
     /// Total number of stars
     @IBInspectable public var starCount: Int = 5
     
@@ -83,7 +83,7 @@ public class RatingView: UIView {
     
     func customInit() {
         let bundle = NSBundle(forClass: RatingView.self)
-
+        
         if offImage == nil {
             offImage = UIImage(named: "starryStars_off", inBundle: bundle, compatibleWithTraitCollection: self.traitCollection)
         }
@@ -103,7 +103,7 @@ public class RatingView: UIView {
             let iv = UIImageView(image: offImage)
             addSubview(iv)
             stars.append(iv)
-
+            
         }
         
         layoutStars()
@@ -126,22 +126,20 @@ public class RatingView: UIView {
         }
         
         let imageWidth = offImage.size.width
+        let imageHeight = offImage.size.height
         let spacesBetweenStars = (bounds.size.width - (imageWidth * CGFloat(starCount))) / CGFloat(starCount - 1)
         let distance = spacesBetweenStars + imageWidth
         
         var i = 0
         for iv in stars {
-            iv.frame = CGRectMake(CGFloat(i) * distance, 0, offImage.size.width, offImage.size.height)
-            
-            iv.center = CGPointMake(iv.center.x,
-                self.center.y)
+            iv.frame = CGRectMake(CGFloat(i) * distance, 0, imageWidth, imageHeight)
             i++
         }
     }
     
     /**
      Compute and adjust rating when user touches begin/move/end
-    */
+     */
     func handleTouches(touches: Set<UITouch>) {
         let touch = touches.first!
         let touchLocation = touch.locationInView(self)
@@ -163,7 +161,7 @@ public class RatingView: UIView {
         
         rating = 0
     }
-
+    
     /**
      Adjust images on image views to represent new rating
      */
