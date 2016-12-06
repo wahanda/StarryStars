@@ -13,30 +13,30 @@ import UIKit
      
      - parameter ratingView: Rating view, which calls this method
      - parameter didChangeRating newRating: New rating
-     */
-    func ratingView(ratingView: RatingView, didChangeRating newRating: Float)
+    */
+    func ratingView(_ ratingView: RatingView, didChangeRating newRating: Float)
 }
 
 /**
  Rating bar, fully customisable from Interface builder
  */
 @IBDesignable
-public class RatingView: UIView {
-    
+open class RatingView: UIView {
+   
     /// Total number of stars
-    @IBInspectable public var starCount: Int = 5
+    @IBInspectable open var starCount: Int = 5
     
     /// Image of unlit star, if nil "starryStars_off" is used
-    @IBInspectable public var offImage: UIImage?
+    @IBInspectable open var offImage: UIImage?
     
     /// Image of fully lit star, if nil "starryStars_on" is used
-    @IBInspectable public var onImage: UIImage?
+    @IBInspectable open var onImage: UIImage?
     
     /// Image of half-lit star, if nil "starryStars_half" is used
-    @IBInspectable public var halfImage: UIImage?
+    @IBInspectable open var halfImage: UIImage?
     
     /// Current rating, updates star images after setting
-    @IBInspectable public var rating: Float = Float(0) {
+    @IBInspectable open var rating: Float = Float(0) {
         didSet {
             // If rating is more than starCount simply set it to starCount
             rating = min(Float(starCount), rating)
@@ -46,14 +46,14 @@ public class RatingView: UIView {
     }
     
     /// If set to "false" only full stars will be lit
-    @IBInspectable public var halfStarsAllowed: Bool = true
+    @IBInspectable open var halfStarsAllowed: Bool = true
     
     /// If set to "false" user will not be able to edit the rating
-    @IBInspectable public var editable: Bool = true
+    @IBInspectable open var editable: Bool = true
     
     
     /// Delegate, must confrom to *RatingViewDelegate* protocol
-    public weak var delegate: RatingViewDelegate?
+    open weak var delegate: RatingViewDelegate?
     
     var stars = [UIImageView]()
     var ratingCandidate: Float = 0.0
@@ -69,29 +69,30 @@ public class RatingView: UIView {
         super.init(coder: aDecoder)
     }
     
-    override public func awakeFromNib() {
+    override open func awakeFromNib() {
         super.awakeFromNib()
         
         customInit()
     }
     
-    override public func prepareForInterfaceBuilder() {
+    override open func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
         
         customInit()
     }
     
     func customInit() {
-        let bundle = NSBundle(forClass: RatingView.self)
-        
+        let bundle = Bundle(for: RatingView.self)
+
         if offImage == nil {
-            offImage = UIImage(named: "starryStars_off", inBundle: bundle, compatibleWithTraitCollection: self.traitCollection)
+            offImage = UIImage(named: "starryStars_off", in: bundle, compatibleWith: self.traitCollection)
         }
         if onImage == nil {
-            onImage = UIImage(named: "starryStars_on", inBundle: bundle, compatibleWithTraitCollection: self.traitCollection)
+            onImage = UIImage(named: "starryStars_on", in: bundle, compatibleWith: self.traitCollection)
         }
+        
         if halfImage == nil {
-            halfImage = UIImage(named: "starryStars_half", inBundle: bundle, compatibleWithTraitCollection: self.traitCollection)
+            halfImage = UIImage(named: "starryStars_half", in: bundle, compatibleWith: self.traitCollection)
         }
         
         guard let offImage = offImage else {
@@ -99,18 +100,19 @@ public class RatingView: UIView {
             return
         }
         
-        for var i = 1; i <= starCount; i++ {
+        var i = 1
+        while i <= starCount {
             let iv = UIImageView(image: offImage)
             addSubview(iv)
             stars.append(iv)
-            
+            i += 1
         }
         
         layoutStars()
         updateRating()
     }
     
-    override public func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         
         layoutStars()
@@ -128,23 +130,25 @@ public class RatingView: UIView {
         let imageWidth = offImage.size.width
         let imageHeight = offImage.size.height
         let spacesBetweenStars = (bounds.size.width - (imageWidth * CGFloat(starCount))) / CGFloat(starCount - 1)
-        let distance = spacesBetweenStars + imageWidth
+                    iv.frame = CGRect(x: 0, y: 0, width: offImage.size.width, height: offImage.size.height)
         
         var i = 0
         for iv in stars {
-            iv.frame = CGRectMake(CGFloat(i) * distance, 0, imageWidth, imageHeight)
-            i++
+                    iv.center = CGPoint(x: CGFloat(i) * distance + halfWidth * CGFloat(i - 1),
+                        y: self.frame.size.height/2)
+                    i += 1
         }
     }
     
     /**
      Compute and adjust rating when user touches begin/move/end
-     */
-    func handleTouches(touches: Set<UITouch>) {
+    */
+    func handleTouches(_ touches: Set<UITouch>) {
         let touch = touches.first!
-        let touchLocation = touch.locationInView(self)
+        let touchLocation = touch.location(in: self)
         
-        for var i = starCount - 1; i >= 0; i-- {
+        var i = starCount - 1
+        while i >= 0 {
             let imageView = stars[i]
             
             let x = touchLocation.x;
@@ -153,11 +157,13 @@ public class RatingView: UIView {
                 let newRating = Float(i) + 1
                 rating = newRating == ratingCandidate ? 0 : newRating
                 return
-            } else if x >= CGRectGetMinX(imageView.frame) && halfStarsAllowed {
+            } else if x >= imageView.frame.minX && halfStarsAllowed {
                 rating = Float(i) + 0.5
                 return
             }
+            i -= 1
         }
+        
         
         rating = 0
     }
@@ -173,9 +179,10 @@ public class RatingView: UIView {
         
         // Set every full star
         var i = 1
-        for ; i <= Int(rating); i++ {
+        while i <= Int(rating) {
             let star = stars[i-1]
             star.image = onImage
+            i += 1
         }
         
         if i > starCount {
@@ -186,13 +193,13 @@ public class RatingView: UIView {
         if rating - Float(i) + 1 >= 0.5 {
             let star = stars[i-1]
             star.image = halfImage
-            i++
+            i += 1
         }
         
-        
-        for ; i <= starCount; i++ {
+        while i <= starCount {
             let star = stars[i-1]
             star.image = offImage
+            i += 1
         }
     }
 }
@@ -200,13 +207,18 @@ public class RatingView: UIView {
 // MARK: Override UIResponder methods
 
 extension RatingView {
-    override public func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard editable else { return }
+        handleTouches(touches)
+    }
+    
+    override open func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard editable else { return }
         ratingCandidate = rating
         handleTouches(touches)
     }
     
-    override public func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard editable else { return }
         handleTouches(touches)
         ratingCandidate = 0.0

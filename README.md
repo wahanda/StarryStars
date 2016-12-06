@@ -37,9 +37,9 @@ use_frameworks!
 
 ## Requirements
 
-- iOS 7.0+ (8.0+ if you use Cocoapods)
-- Xcode 7.0
-- Swift 2.0
+- iOS 8.0+
+- Xcode 8.0+
+- Swift 3.0 (for older versions, see `swift-2.2` branch)
 
 ## Other Projects
 
