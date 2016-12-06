@@ -119,7 +119,6 @@ open class RatingView: UIView {
     }
     
     func layoutStars() {
-        
         if stars.count == 0 {
             return
         }
@@ -130,13 +129,12 @@ open class RatingView: UIView {
         let imageWidth = offImage.size.width
         let imageHeight = offImage.size.height
         let spacesBetweenStars = (bounds.size.width - (imageWidth * CGFloat(starCount))) / CGFloat(starCount - 1)
-                    iv.frame = CGRect(x: 0, y: 0, width: offImage.size.width, height: offImage.size.height)
+        let distance = spacesBetweenStars + imageWidth
         
         var i = 0
         for iv in stars {
-                    iv.center = CGPoint(x: CGFloat(i) * distance + halfWidth * CGFloat(i - 1),
-                        y: self.frame.size.height/2)
-                    i += 1
+            iv.frame = CGRect(x: CGFloat(i) * distance, y: 0, width: imageWidth, height: imageHeight)
+            i += 1
         }
     }
     
@@ -153,7 +151,7 @@ open class RatingView: UIView {
             
             let x = touchLocation.x;
             
-            if x >= CGRectGetMinX(imageView.frame) {
+            if x >= imageView.frame.minX {
                 let newRating = Float(i) + 1
                 rating = newRating == ratingCandidate ? 0 : newRating
                 return
